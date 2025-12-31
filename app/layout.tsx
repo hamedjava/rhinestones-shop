@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 
-// ایمپورت‌های مربوط به سبد خرید و نوتیفیکیشن
+// --- ایمپورت‌های کانتکست‌ها ---
+// 1. اضافه کردن AuthProvider (طبق ارور شما در پوشه contexts قرار دارد)
+import { AuthProvider } from "@/core/contexts/AuthContext"; 
 import { CartProvider } from "@/core/contexts/CartContext";
+
 import { Toaster } from "react-hot-toast";
-import CartDrawer from "@/presentation/components/cart/CartDrawer"; // مطمئن شوید این فایل را طبق مرحله قبل ساخته‌اید
+import CartDrawer from "@/presentation/components/cart/CartDrawer";
 
 const vazir = Vazirmatn({ 
   subsets: ["arabic"],
@@ -26,24 +29,33 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body className={`${vazir.variable} font-sans bg-surface text-text-main`}>
-        {/* کانتکست سبد خرید باید والد تمام کامپوننت‌ها باشد */}
-        <CartProvider>
-          {/* کامپوننت نمایش پیام‌های موفقیت/خطا */}
-          <Toaster 
-            position="top-center" 
-            toastOptions={{
-              style: {
-                fontFamily: 'var(--font-vazir)',
-                fontSize: '14px',
-              },
-            }}
-          />
+        
+        {/* 2. AuthProvider باید بالاترین لایه باشد تا اطلاعات کاربر در دسترس همه باشد */}
+        <AuthProvider>
           
-          {/* منوی کشویی سبد خرید که همیشه در صفحه هست اما مخفی */}
-          <CartDrawer />
+          {/* کانتکست سبد خرید */}
+          <CartProvider>
+            
+            {/* کامپوننت نمایش پیام‌های موفقیت/خطا */}
+            <Toaster 
+              position="top-center" 
+              toastOptions={{
+                style: {
+                  fontFamily: 'var(--font-vazir)',
+                  fontSize: '14px',
+                },
+              }}
+            />
+            
+            {/* منوی کشویی سبد خرید */}
+            <CartDrawer />
+            
+            {/* محتوای صفحات */}
+            {children}
+            
+          </CartProvider>
           
-          {children}
-        </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

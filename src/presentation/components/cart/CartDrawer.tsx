@@ -33,7 +33,7 @@ export default function CartDrawer() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isCartOpen, toggleCart]);
-
+ 
   return (
     <>
       {/* Overlay */}

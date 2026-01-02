@@ -2,8 +2,8 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
+    // این خط به تنهایی کافی است چون تمام زیرمجموعه‌های src را می‌خواند
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -24,7 +24,8 @@ const config: Config = {
         }
       },
       fontFamily: {
-        sans: ['var(--font-vazir)'],
+        // مطمئن شوید فونت وزیر را در layout.tsx لود کرده‌اید
+        sans: ['var(--font-vazir)'], 
       },
     },
   },

@@ -38,7 +38,7 @@ export default function Header() {
              )}
           </button>
           
-          <Link href="/login" className="hover:text-secondary transition">
+          <Link href="auth/login" className="hover:text-secondary transition">
              <User className="w-5 h-5" />
           </Link>
         </div>

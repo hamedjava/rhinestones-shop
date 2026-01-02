@@ -3,19 +3,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-
-// تعریف تایپ کاربر
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  token: string;
-}
+// 1. ایمپورت کردن مدل استاندارد کاربر
+import { User } from "@/core/entities/User";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (userData: User) => void;
+  // 2. تغییر تابع لاگین برای دریافت جداگانه یوزر و توکن
+  login: (userData: User, token: string) => void;
   logout: () => void;
 }
 
@@ -45,10 +40,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = (userData: User) => {
+  // 3. اصلاح تابع لاگین برای رفع ارور "Expected 1 arguments"
+  const login = (userData: User, token: string) => {
     setUser(userData);
     localStorage.setItem("user_data", JSON.stringify(userData));
-    Cookies.set("auth_token", userData.token, { expires: 7 });
+    // ذخیره توکن در کوکی
+    Cookies.set("auth_token", token, { expires: 7 });
   };
 
   const logout = () => {

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 
-// --- ایمپورت‌های کانتکست‌ها ---
-// 1. اضافه کردن AuthProvider (طبق ارور شما در پوشه contexts قرار دارد)
+// ایمپورت‌های کانتکست‌ها
 import { AuthProvider } from "@/core/contexts/AuthContext"; 
 import { CartProvider } from "@/core/contexts/CartContext";
 
+// ایمپورت کامپوننت‌های UI
 import { Toaster } from "react-hot-toast";
 import CartDrawer from "@/presentation/components/cart/CartDrawer";
 
@@ -28,29 +28,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl">
-      <body className={`${vazir.variable} font-sans bg-surface text-text-main`}>
+      <body className={`${vazir.variable} font-sans bg-white text-gray-900`}>
         
-        {/* 2. AuthProvider باید بالاترین لایه باشد تا اطلاعات کاربر در دسترس همه باشد */}
+        {/* AuthProvider بالاترین لایه است */}
         <AuthProvider>
           
-          {/* کانتکست سبد خرید */}
+          {/* CartProvider برای مدیریت سبد خرید */}
           <CartProvider>
             
-            {/* کامپوننت نمایش پیام‌های موفقیت/خطا */}
+            {/* کامپوننت نمایش پیام‌های Toast */}
             <Toaster 
               position="top-center" 
               toastOptions={{
                 style: {
                   fontFamily: 'var(--font-vazir)',
                   fontSize: '14px',
+                  direction: 'rtl', // برای نمایش صحیح فارسی
                 },
               }}
             />
             
-            {/* منوی کشویی سبد خرید */}
+            {/* منوی کشویی سبد خرید که در تمام صفحات در دسترس است */}
             <CartDrawer />
             
-            {/* محتوای صفحات */}
+            {/* محتوای اصلی صفحات */}
             {children}
             
           </CartProvider>

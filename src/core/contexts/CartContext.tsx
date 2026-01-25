@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { CartItem } from "@/core/entities/Cart";
-import { Product } from "@/core/entities/Product";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
+// فرض بر این است که این مدل‌ها در این مسیرها وجود دارند
+import { CartItem } from "@/core/entities/Cart"; 
+import { Product } from "@/domain/models/Product"; 
 import toast from "react-hot-toast";
 
 interface CartContextType {
@@ -22,77 +23,84 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // لود کردن اولیه
+  // ۱. لود کردن اولیه (Client-Side Only)
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedCart = localStorage.getItem("shopping-cart");
-      if (savedCart) {
-        try {
-          setCartItems(JSON.parse(savedCart));
-        } catch (e) {
-          console.error("Error parsing cart", e);
-        }
+    const savedCart = localStorage.getItem("shopping-cart");
+    if (savedCart) {
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Error parsing cart:", e);
+        localStorage.removeItem("shopping-cart");
       }
-      setIsLoaded(true);
     }
+    setIsInitialized(true);
   }, []);
 
-  // ذخیره تغییرات
+  // ۲. ذخیره تغییرات در LocalStorage
   useEffect(() => {
-    if (isLoaded && typeof window !== "undefined") {
+    if (isInitialized) {
       localStorage.setItem("shopping-cart", JSON.stringify(cartItems));
     }
-  }, [cartItems, isLoaded]);
+  }, [cartItems, isInitialized]);
 
-  // --- اصلاح شده: Toast خارج از setState ---
-  const addToCart = (product: Product | CartItem) => {
-    const targetId = Number(product.id);
-    
-    // ابتدا چک می‌کنیم آیا محصول وجود دارد یا خیر (بدون تغییر استیت)
-    const existingItemIndex = cartItems.findIndex((item) => Number(item.id) === targetId);
-
-    if (existingItemIndex > -1) {
-      // سناریوی ۱: محصول قبلاً هست -> افزایش تعداد
-      toast.success("تعداد محصول افزایش یافت");
+  // ۳. افزودن به سبد
+    // ۳. افزودن به سبد
+    const addToCart = (product: Product | CartItem) => {
+      const targetId = String(product.id);
       
-      setCartItems((prev) => {
-        const newItems = [...prev];
-        newItems[existingItemIndex].quantity += 1;
-        return newItems;
-      });
-    } else {
-      // سناریوی ۲: محصول جدید -> افزودن به لیست
-      toast.success("به سبد خرید اضافه شد");
+      // --- اصلاح شده (Fix) ---
+      // این خط با تبدیل اجباری به رشته، هم اعداد و هم رشته‌های دارای ویرگول را هندل می‌کند
+      // و ارور never تایپ‌اسکریپت را برطرف می‌کند.
+      const rawPrice = Number(String(product.price).replace(/\D/g, '')) || 0;
+      // -----------------------
+  
+      // هندل کردن تصویر (اولین تصویر آرایه یا رشته تصویر)
+      // @ts-ignore
+      const imageSrc = product.image || (product.images && product.images.length > 0 ? product.images[0] : "");
       
-      const newItem: CartItem = {
-        id: product.id,
-        title: product.title,
-        price: Number(product.price),
-        image: product.image,
-        quantity: 1,
-      } as unknown as CartItem;
+      // @ts-ignore
+      const productName = product.title || product.name || "محصول";
+  
+      const existingItemIndex = cartItems.findIndex((item) => String(item.id) === targetId);
+  
+      if (existingItemIndex > -1) {
+        toast.success("تعداد محصول افزایش یافت");
+        setCartItems((prev) => {
+          const newItems = [...prev];
+          newItems[existingItemIndex].quantity += 1;
+          return newItems;
+        });
+      } else {
+        toast.success("به سبد خرید اضافه شد");
+        const newItem: CartItem = {
+          id: product.id,
+          title: productName,
+          price: rawPrice,
+          image: imageSrc,
+          quantity: 1,
+        } as unknown as CartItem;
+  
+        setCartItems((prev) => [...prev, newItem]);
+      }
+      
+      setIsCartOpen(true);
+    };
+  
 
-      setCartItems((prev) => [...prev, newItem]);
-    }
-    
-    setIsCartOpen(true);
-  };
-
+  // ۴. کاهش تعداد
   const decreaseQuantity = (productId: number | string) => {
-    const targetId = Number(productId);
-    const existingItem = cartItems.find((item) => Number(item.id) === targetId);
+    const targetId = String(productId);
+    const existingItem = cartItems.find((item) => String(item.id) === targetId);
 
     if (existingItem?.quantity === 1) {
-       // اگر ۱ بود و کم شد -> حذف و نمایش پیام
-       toast.error("محصول حذف شد");
-       setCartItems((prev) => prev.filter((item) => Number(item.id) !== targetId));
+       removeFromCart(productId);
     } else {
-       // کاهش معمولی
        setCartItems((prev) =>
         prev.map((item) =>
-          Number(item.id) === targetId
+          String(item.id) === targetId
             ? { ...item, quantity: item.quantity - 1 }
             : item
         )
@@ -100,10 +108,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // ۵. حذف کامل
   const removeFromCart = (productId: number | string) => {
-    toast.error("محصول از سبد خرید حذف شد");
-    const targetId = Number(productId);
-    setCartItems((prev) => prev.filter((item) => Number(item.id) !== targetId));
+    toast.error("محصول حذف شد");
+    const targetId = String(productId);
+    setCartItems((prev) => prev.filter((item) => String(item.id) !== targetId));
   };
 
   const clearCart = () => {
@@ -114,16 +123,20 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + Number(item.price) * item.quantity,
-    0
-  );
+  // ۶. محاسبات بهینه (Memoized)
+  const cartTotal = useMemo(() => {
+    return cartItems.reduce(
+      (total, item) => total + (Number(item.price) * item.quantity),
+      0
+    );
+  }, [cartItems]);
 
-  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+  const cartCount = useMemo(() => {
+    return cartItems.reduce((count, item) => count + item.quantity, 0);
+  }, [cartItems]);
 
-  // جلوگیری از باگ هیدراتاسیون
-  if (!isLoaded) return null;
-
+  // نکته مهم: اینجا `return null` نداریم تا SSR خراب نشود.
+  // کامپوننت‌ها رندر می‌شوند، اما کانتنت سبد خرید بعد از هیدریشن پر می‌شود.
   return (
     <CartContext.Provider
       value={{

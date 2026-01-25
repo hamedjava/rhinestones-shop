@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { ProductRepository } from "@/infrastructure/repositories/ProductRepository";
 import ProductCard from "@/presentation/components/ProductCard";
-import { Product } from "@/core/entities/Product";
+import { Product } from "@/domain/models/Product"; // مسیر اصلاح شد
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -17,20 +17,22 @@ export default function ProductDetailsPage() {
   // دریافت اطلاعات محصول بر اساس ID موجود در URL
   useEffect(() => {
     if (params.id) {
-      const id = Number(params.id);
-      const foundProduct = ProductRepository.getById(id);
+      // هندل کردن ID که ممکن است آرایه باشد (در نکست جی‌اس) و استفاده به عنوان رشته
+      const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
+      const foundProduct = ProductRepository.getById(rawId);
       
       if (foundProduct) {
         setProduct(foundProduct);
-        setActiveImage(foundProduct.image);
+        // تنظیم تصویر اولیه از آرایه تصاویر
+        setActiveImage(foundProduct.images[0]);
       } else {
-        // اگر محصول پیدا نشد، ریدایرکت به فروشگاه (یا نمایش صفحه 404)
-        router.push("/shop");
+        // اگر محصول پیدا نشد
+        // router.push("/shop"); // می‌توانید این خط را فعال کنید
       }
     }
   }, [params.id, router]);
 
-  if (!product) return null; // یا یک لودینگ ساده
+  if (!product) return <div className="min-h-screen flex items-center justify-center">در حال بارگذاری...</div>;
 
   // پیدا کردن محصولات مشابه (هم‌دسته)
   const relatedProducts = ProductRepository.getAll()
@@ -41,14 +43,14 @@ export default function ProductDetailsPage() {
   const increaseQty = () => setQuantity((prev) => prev + 1);
   const decreaseQty = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
-  // افزودن به سبد (فعلاً لاگ می‌کند)
+  // افزودن به سبد
   const handleAddToCart = () => {
     console.log(`Added ${quantity} of ${product.name} to cart.`);
     alert(`${quantity} عدد "${product.name}" به سبد خرید اضافه شد.`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12" dir="rtl">
       <div className="container mx-auto px-4">
         
         {/* مسیر نان ریز (Breadcrumb) */}
@@ -68,31 +70,31 @@ export default function ProductDetailsPage() {
               <div className="relative w-full max-w-md aspect-square mb-6 rounded-xl overflow-hidden shadow-sm bg-white">
                  {/* تصویر اصلی */}
                 <Image
-                  src={activeImage}
+                  src={activeImage || product.images[0]} // فال‌بک به تصویر اول
                   alt={product.name}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-500 cursor-zoom-in"
                 />
               </div>
               
-              {/* تامبنیل‌ها (برای زیبایی تکرار شده‌اند چون هر محصول یک عکس دارد) */}
-              <div className="flex gap-4">
-                {[product.image, product.image, product.image].map((img, idx) => (
+              {/* تامبنیل‌ها (نمایش تصاویر واقعی محصول) */}
+              <div className="flex gap-4 overflow-x-auto pb-2 w-full justify-center">
+                {product.images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(img)}
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
                       activeImage === img ? "border-black" : "border-transparent opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <Image src={img} alt="thumb" fill className="object-cover" />
+                    <Image src={img} alt={`thumb-${idx}`} fill className="object-cover" />
                   </button>
                 ))}
               </div>
             </div>
 
             {/* بخش اطلاعات محصول */}
-            <div className="p-8 lg:p-12 flex flex-col">
+            <div className="p-8 lg:p-12 flex flex-col text-right">
               <div className="mb-auto">
                 <span className="inline-block px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold mb-4">
                   {product.category}
@@ -112,7 +114,7 @@ export default function ProductDetailsPage() {
                   </div>
                 </div>
 
-                <p className="text-gray-600 leading-relaxed mb-8 text-justify">
+                <p className="text-gray-600 leading-relaxed mb-8 text-justify pl-4">
                   {product.description}
                   <br />
                   این محصول با استفاده از طلای ۱۸ عیار استاندارد ساخته شده و دارای کد پیگیری اتحادیه طلا و جواهر می‌باشد. طراحی ارگونومیک آن باعث می‌شود در استفاده طولانی مدت احساس راحتی داشته باشید.

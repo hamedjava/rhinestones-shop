@@ -1,18 +1,14 @@
-import { ProductRepository } from "@/infrastructure/repositories/ProductRepository"; // ایمپورت صحیح کلاس
-import Header from "@/presentation/components/Header";
-import Footer from "@/presentation/components/Footer";
+import { ProductRepository } from "@/infrastructure/repositories/ProductRepository"; 
 import HeroSection from "@/presentation/modules/HeroSection";
 import NewArrivals from "@/presentation/modules/NewArrivals";
+import Link from "next/link";
 
 export default function Home() {
-  // دریافت داده‌ها از ریپازیتوری (چون داده‌های ما فعلاً Mock هستند، نیازی به await نیست)
-  // اگر دیتابیس واقعی بود، باید متد را async می‌کردیم.
+  // دریافت داده‌ها از ریپازیتوری
   const products = ProductRepository.getFeatured();
 
   return (
-    <main className="min-h-screen flex flex-col bg-white">
-      {/* هدر */}
-      <Header />
+    <div className="flex flex-col bg-white">
       
       {/* بخش قهرمان */}
       <HeroSection />
@@ -20,20 +16,20 @@ export default function Home() {
       {/* بخش بنرهای تبلیغاتی */}
       <section className="grid grid-cols-1 md:grid-cols-2 h-auto md:h-64 w-full">
          <div className="bg-[#f5f5f5] h-64 md:h-full flex items-center justify-center relative overflow-hidden group cursor-pointer border-b md:border-b-0 md:border-l border-white hover:bg-gray-200 transition-colors">
-            <div className="z-10 text-center">
+            <Link href="/shop" className="z-10 text-center w-full h-full flex flex-col justify-center items-center">
                 <h3 className="text-2xl font-bold text-gray-800 mb-2 font-serif">کالکشن عروس</h3>
                 <span className="text-sm border-b border-gray-800 pb-1 text-gray-600">مشاهده جزئیات</span>
-            </div>
+            </Link>
          </div>
          <div className="bg-[#D4AF37] h-64 md:h-full flex items-center justify-center relative overflow-hidden group cursor-pointer hover:bg-[#c4a02e] transition-colors">
-            <div className="z-10 text-center">
+            <Link href="/shop" className="z-10 text-center w-full h-full flex flex-col justify-center items-center">
                 <h3 className="text-2xl font-bold text-white mb-2 font-serif">هدیه‌های خاص</h3>
                 <span className="text-sm border-b border-white text-white pb-1">خرید کنید</span>
-            </div>
+            </Link>
          </div>
       </section>
 
-      {/* لیست محصولات جدید (داده‌ها به عنوان Props پاس داده می‌شوند) */}
+      {/* لیست محصولات جدید */}
       <NewArrivals products={products} />
 
       {/* بخش سفارشی سازی */}
@@ -48,9 +44,6 @@ export default function Home() {
             </button>
         </div>
       </section>
-
-      {/* فوتر */}
-      <Footer />
-    </main>
+    </div>
   );
 }

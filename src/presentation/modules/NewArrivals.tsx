@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Product } from "@/core/entities/Product";
+import { Product } from "@/domain/models/Product"; // مسیر اصلاح شد
 import ProductCard from "@/presentation/components/ProductCard";
 
 interface NewArrivalsProps {
@@ -11,15 +11,15 @@ interface NewArrivalsProps {
 
 const NewArrivals: React.FC<NewArrivalsProps> = ({ products }) => {
   return (
-    <section className="container mx-auto px-4 py-16">
+    <section className="container mx-auto px-4 py-16" dir="rtl">
       <div className="flex flex-col md:flex-row justify-between items-end mb-10">
-        <div>
+        <div className="text-right w-full">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 font-serif">جدیدترین محصولات</h2>
           <p className="text-gray-500 mt-2 text-lg">زیبایی و درخشش را با کالکشن جدید تجربه کنید</p>
         </div>
         <Link 
           href="/shop" 
-          className="hidden md:inline-flex items-center text-purple-600 font-semibold hover:text-purple-800 transition-colors"
+          className="hidden md:inline-flex items-center text-purple-600 font-semibold hover:text-purple-800 transition-colors whitespace-nowrap"
         >
           مشاهده همه محصولات
           {/* آیکون فلش چپ برای زبان فارسی */}

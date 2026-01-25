@@ -2,80 +2,93 @@
 
 import React from "react";
 import Link from "next/link";
-import { Product } from "@/core/entities/Product";
-import { useCart } from "@/core/contexts/CartContext"; 
+import Image from "next/image";
+import { Product } from "@/domain/models/Product";
+import { ShoppingBag, Eye } from "lucide-react";
+import { useCart } from "@/core/contexts/CartContext"; // اتصال به کانتکست
 
 interface ProductCardProps {
   product: Product;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useCart();
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { addToCart } = useCart(); // استفاده از هوک
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // جلوگیری از رفتن به صفحه محصول هنگام کلیک روی دکمه خرید
+    e.preventDefault(); // جلوگیری از باز شدن صفحه محصول
     e.stopPropagation();
-
-    // افزودن به سبد خرید
-    // استفاده از as any برای سازگاری با کانتکست فعلی
-    addToCart(product as any);
+    addToCart(product);
   };
 
   return (
-    <Link href={`/shop/${product.id}`} className="block h-full">
-      <div className="group bg-white border border-gray-100 p-4 transition-all duration-300 hover:shadow-xl hover:border-secondary/30 rounded-lg h-full flex flex-col font-sans">
+    <div className="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 relative flex flex-col h-full" dir="rtl">
+      
+      {/* Image Container */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+        <Link href={`/shop/${product.id}`}>
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-in-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </Link>
         
-        {/* بخش تصویر */}
-        <div className="relative w-full h-64 mb-4 overflow-hidden bg-gray-50 flex items-center justify-center rounded-md">
-          {/* برچسب ویژه (فارسی) */}
+        {/* Badges */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
           {product.isFeatured && (
-              <span className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 z-10 rounded font-medium">
-                پیشنهاد ویژه
-              </span>
+            <span className="bg-black/90 text-white text-[10px] font-medium px-2.5 py-1 rounded-full backdrop-blur-sm shadow-sm">
+              ویژه
+            </span>
           )}
-          
-          {/* نمایش تصویر */}
-          {product.image ? (
-             <div className="relative w-full h-full group-hover:scale-105 transition duration-500">
-               <img 
-                 src={product.image} 
-                 alt={product.name} 
-                 className="w-full h-full object-cover object-center"
-               />
-             </div>
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400">
-                <span className="text-4xl mb-2">📷</span>
-                <span className="text-sm">تصویر محصول</span>
-            </div>
+          {product.category && (
+            <span className="bg-white/90 text-gray-800 text-[10px] font-medium px-2.5 py-1 rounded-full backdrop-blur-sm shadow-sm border border-gray-100/50">
+              {product.category}
+            </span>
           )}
-          
-          {/* دکمه افزودن به سبد (فارسی) */}
-          <button 
-              onClick={handleAddToCart}
-              className="absolute bottom-0 w-full bg-primary text-white py-3 font-medium translate-y-full group-hover:translate-y-0 transition duration-300 hover:bg-opacity-90 cursor-pointer flex items-center justify-center z-20 shadow-md"
-          >
-              افزودن به سبد خرید
-          </button>
         </div>
-        
-        {/* بخش اطلاعات متنی */}
-        <div className="text-center mt-auto px-1">
-          {/* دسته‌بندی (که الان از دیتا فارسی می‌آید) */}
-          <div className="text-xs text-gray-500 mb-2">{product.category}</div>
-          
-          {/* نام محصول */}
-          <h3 className="font-bold text-lg text-primary mb-2 line-clamp-1 leading-relaxed">
-            {product.name}
-          </h3>
-          
-          {/* قیمت (فارسی سازی اعداد و واحد پول) */}
-          <div className="text-lg font-bold text-primary mt-2">
-            {Number(product.price).toLocaleString('fa-IR')} 
-            <span className="text-sm font-normal text-gray-500 mr-1">تومان</span>
-          </div>
+
+        {/* Quick Action Overlay */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+            <Link 
+              href={`/shop/${product.id}`}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-800 hover:bg-primary-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 shadow-lg"
+              title="مشاهده جزئیات"
+            >
+               <Eye className="w-5 h-5" />
+            </Link>
+            <button 
+              onClick={handleAddToCart} // اتصال تابع کلیک
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-800 hover:bg-primary-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75 shadow-lg cursor-pointer"
+              title="افزودن به سبد"
+            >
+               <ShoppingBag className="w-5 h-5" />
+            </button>
         </div>
       </div>
-    </Link>
+
+      {/* Content */}
+      <div className="p-5 flex-grow flex flex-col justify-between text-right">
+        <div>
+           <Link href={`/shop/${product.id}`}>
+            <h3 className="font-medium text-lg text-gray-900 mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">
+              {product.name}
+            </h3>
+          </Link>
+          <div className="text-sm text-gray-500 mb-3 line-clamp-2 min-h-[2.5rem]">
+             {product.description}
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between mt-2 pt-4 border-t border-gray-50">
+           <span className="text-lg font-bold text-gray-900 font-mono tracking-tight">
+             {product.price} <span className="text-sm font-normal text-gray-500 mr-1">تومان</span>
+           </span>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default ProductCard;

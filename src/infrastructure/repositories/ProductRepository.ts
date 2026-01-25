@@ -1,111 +1,69 @@
-import { Product } from "@/core/entities/Product";
+// src/infrastructure/repositories/ProductRepository.ts
 
-// توجه: در Next.js پوشه public در آدرس‌دهی حذف می‌شود.
-// وقتی فایل در public/images/pic1.jpg است، آدرس آن /images/pic1.jpg می‌شود.
+import { Product } from "@/domain/models/Product";
 
-const productsData: Product[] = [
+// دیتای نمونه (بعداً می‌توانید این‌ها را از API بگیرید)
+const products: Product[] = [
   {
-    id: 1,
-    name: "انگشتر الماس طرح خورشید",
-    price: 25500000,
-    description: "انگشتر طلای سفید ۱۸ عیار با طراحی خاص و نگین‌های درخشان.",
-    image: "/images/pic1.jpg", 
-    category: "انگشتر",
-    isFeatured: true,
-  },
-  {
-    id: 2,
-    name: "گردنبند طلا ظریف",
-    price: 12800000,
-    description: "گردنبند مینیمال با زنجیر ونیزی و پلاک ظریف.",
-    image: "/images/pic2.jpg",
+    id: "1",
+    name: "گردنبند الماس رویال",
+    description: "یک شاهکار هنری ساخته شده از طلای ۱۸ عیار و الماس‌های تراش برلیان. مناسب برای مجالس خاص و هدیه‌ای ماندگار.",
+    price: 155000000,
+    images: ["/images/pic1.jpg", "/images/pic2.jpg"], // اطمینان حاصل کنید این عکس‌ها در پوشه public باشند
     category: "گردنبند",
     isFeatured: true,
   },
   {
-    id: 3,
-    name: "گوشواره آویز مجلسی",
-    price: 18400000,
-    description: "گوشواره‌های بلند با طراحی مدرن و تراش‌های ظریف دستی.",
-    image: "/images/pic3.jpg",
+    id: "2",
+    name: "انگشتر سولیتر کلاسیک",
+    description: "طراحی مینیمال و در عین حال خیره‌کننده. نگین مرکزی زیرکونیای درجه یک با پایه طلای سفید.",
+    price: 45000000,
+    images: ["/images/pic3.jpg"],
+    category: "انگشتر",
+    isFeatured: true,
+  },
+  {
+    id: "3",
+    name: "گوشواره آویز مروارید",
+    description: "تلفیقی از مروارید طبیعی خلیج فارس و طراحی مدرن. سبک و راحت برای استفاده روزمره.",
+    price: 28000000,
+    images: ["/images/pic4.jpg"],
     category: "گوشواره",
     isFeatured: false,
   },
   {
-    id: 4,
-    name: "دستبند چرم و طلا",
-    price: 4200000,
-    description: "دستبند اسپرت با چرم طبیعی درجه یک.",
-    image: "/images/pic4.jpg",
+    id: "4",
+    name: "دستبند تنیسی طلا",
+    description: "دستبند لوکس با قطعات متحرک که به نرمی روی دست می‌نشیند. درخشش بی‌نظیر در هر زاویه.",
+    price: 98000000,
+    images: ["/images/pic5.webp"],
     category: "دستبند",
-    isFeatured: true,
+    isFeatured: false,
   },
   {
-    id: 5,
-    name: "نیم‌ست یاقوت کبود",
-    price: 45000000,
-    description: "ست شامل گردنبند و گوشواره با سنگ یاقوت اصل.",
-    image: "/images/pic5.webp", // پسوند webp طبق عکس شما
+    id: "5",
+    name: "نیم‌ست یاقوت سرخ",
+    description: "شامل گردنبند و گوشواره با نگین‌های یاقوت سرخ خون کبوتری. نماد عشق و شور.",
+    price: 210000000,
+    images: ["/images/pic6.jpg"],
     category: "نیم‌ست",
     isFeatured: true,
   },
-  {
-    id: 6,
-    name: "انگشتر نامزدی سولیتر",
-    price: 32000000,
-    description: "انگشتر تک نگین برلیان با پایه‌ی طلای سفید.",
-    image: "/images/pic6.jpg",
-    category: "انگشتر",
-    isFeatured: true,
-  },
-  {
-    id: 7,
-    name: "رولباسی طلای توپی",
-    price: 21500000,
-    description: "گردنبند بلند رولباسی با گوی‌های تراش‌دار.",
-    image: "/images/pic7.webp", // پسوند webp طبق عکس شما
-    category: "گردنبند",
-    isFeatured: false,
-  },
-  {
-    id: 8,
-    name: "گوشواره میخی مروارید",
-    price: 3800000,
-    description: "گوشواره میخی ساده و شیک با مروارید پرورشی.",
-    image: "/images/pic8.webp", // پسوند webp طبق عکس شما
-    category: "گوشواره",
-    isFeatured: false,
-  },
-  {
-    id: 9,
-    name: "دستبند کارتیر پهن",
-    price: 55000000,
-    description: "دستبند زنجیری مدل کارتیر با وزن بالا.",
-    image: "/images/pic9.jpg",
-    category: "دستبند",
-    isFeatured: true,
-  },
-  {
-    id: 10,
-    name: "پلاک طلا طرح انار",
-    price: 2900000,
-    description: "پلاک تک طرح انار، هدیه‌ای ظریف و زیبا.",
-    image: "/images/pic10.jpg",
-    category: "پلاک",
-    isFeatured: false,
-  },
 ];
 
-export class ProductRepository {
-  static getAll(): Product[] {
-    return productsData;
-  }
+export const ProductRepository = {
+  // گرفتن همه محصولات
+  getAll: (): Product[] => {
+    return products;
+  },
 
-  static getFeatured(): Product[] {
-    return productsData.filter((p) => p.isFeatured);
+  // گرفتن یک محصول خاص با ID
+  getById: (id: string): Product | undefined => {
+    return products.find((product) => product.id === id);
+  },
+  
+  // گرفتن محصولات ویژه (برای صفحه اصلی)
+  getFeatured: (): Product[] => {
+    return products.filter((product) => product.isFeatured);
   }
-
-  static getById(id: number): Product | undefined {
-    return productsData.find((p) => p.id === id);
-  }
-}
+};

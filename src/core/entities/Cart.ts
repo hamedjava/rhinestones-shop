@@ -1,11 +1,15 @@
-import { Product } from "./Product";
+// src/core/entities/Cart.ts
+import { Product } from "@/domain/models/Product"; 
 
 export interface CartItem extends Product {
-  name: string;
-  quantity: number;
-  // اگر محصول ویژگی‌هایی مثل سایز یا رنگ دارد، اینجا اضافه می‌شود
-  // selectedColor?: string;
-  // selectedSize?: string;
+  // ویژگی name و images و id از Product به ارث برده می‌شوند.
+  
+  title: string; // اجباری برای نمایش نام محصول
+  quantity: number; // تعداد در سبد خرید
+  
+  // *** این خط را اضافه کنید تا ارور برطرف شود ***
+  // این ویژگی اختیاری است تا اگر در کانتکست آن را ست کردید، تایپ‌اسکریپت ایراد نگیرد
+  image?: string; 
 }
 
 export interface CartState {

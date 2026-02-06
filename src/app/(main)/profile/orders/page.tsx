@@ -1,135 +1,127 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Package, Calendar, Clock, ChevronLeft, ShoppingBag } from "lucide-react";
 
-// دیتای ساختگی برای تست UI (بعدا با API جایگزین میشه)
-const mockOrders = [
+// داده‌های نمونه (بعداً از دیتابیس خوانده می‌شود)
+const orders = [
   {
-    id: "ORD-123456",
-    date: "۱۴۰۲/۱۱/۱۰",
-    status: "processing", // pending, processing, delivered, cancelled
-    totalPrice: 15500000,
-    items: [
-      { id: 1, title: "کفش ورزشی نایک مدل Air", image: "/images/product-1.jpg" }, // مسیر عکس تستی
-      { id: 2, title: "تی‌شرت ورزشی مردانه", image: "/images/product-2.jpg" },
-    ]
+    id: "ORD-8591",
+    date: "1402/11/17",
+    total: "15,500,000",
+    status: "processing",
+    statusText: "در حال پردازش",
+    itemCount: 3,
   },
   {
-    id: "ORD-987654",
-    date: "۱۴۰۲/۱۰/۰۵",
+    id: "ORD-1204",
+    date: "1402/10/02",
+    total: "8,200,000",
     status: "delivered",
-    totalPrice: 2400000,
-    items: [
-      { id: 3, title: "شلوار اسلش کتان", image: "/images/product-3.jpg" },
-    ]
+    statusText: "تحویل شده",
+    itemCount: 1,
   },
   {
-    id: "ORD-456789",
-    date: "۱۴۰۲/۰۹/۲۰",
+    id: "ORD-0992",
+    date: "1402/09/20",
+    total: "22,000,000",
     status: "cancelled",
-    totalPrice: 890000,
-    items: [
-        { id: 4, title: "جوراب نانو بسته ۳ تایی", image: "" }, // تست بدون عکس
-    ]
-  }
+    statusText: "لغو شده",
+    itemCount: 2,
+  },
 ];
-
-// کامپوننت کمکی برای وضعیت سفارش
-const StatusBadge = ({ status }: { status: string }) => {
-  const styles = {
-    pending: { bg: "bg-yellow-100", text: "text-yellow-700", label: "در انتظار پرداخت" },
-    processing: { bg: "bg-blue-100", text: "text-blue-700", label: "در حال پردازش" },
-    delivered: { bg: "bg-green-100", text: "text-green-700", label: "تحویل شده" },
-    cancelled: { bg: "bg-red-100", text: "text-red-700", label: "لغو شده" },
-  };
-  
-  const current = styles[status as keyof typeof styles] || styles.pending;
-
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-bold ${current.bg} ${current.text}`}>
-      {current.label}
-    </span>
-  );
-};
-
-// کامپوننت برای هندل کردن عکس‌های احتمالا خراب
-const OrderImage = ({ src, alt }: { src?: string, alt: string }) => {
-    if (!src) {
-        return <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">No Img</div>
-    }
-    // اینجا از تگ img معمولی استفاده کردم برای تست، توی پروژه واقعی Image نکست جی‌اس باشه
-    return <img src={src} alt={alt} className="w-full h-full object-cover" />;
-}
 
 export default function OrdersPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">سفارش‌های من</h1>
+    <div className="w-full">
+      {/* تیتر صفحه */}
+      <div className="flex items-center gap-3 mb-8 border-b border-gray-200 pb-4">
+        <div className="w-10 h-10 rounded-full bg-[#0f393b]/10 flex items-center justify-center text-[#0f393b]">
+          <ShoppingBag size={20} />
+        </div>
+        <h1 className="text-2xl font-bold text-[#0f393b]">تاریخچه سفارشات</h1>
       </div>
 
-      <div className="space-y-4">
-        {mockOrders.map((order) => (
-          <div 
-            key={order.id} 
-            className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
+      {/* لیست سفارشات */}
+      <div className="flex flex-col gap-6">
+        {orders.map((order) => (
+          <div
+            key={order.id}
+            // !bg-white استفاده شده تا حتما پس‌زمینه سفید باشد
+            className="!bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
           >
-            {/* هدر کارت سفارش */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 dark:border-zinc-800 pb-4 mb-4">
-              <div className="flex items-center gap-6 text-sm">
-                <div>
-                  <span className="text-gray-500 block mb-1">شماره سفارش</span>
-                  <span className="font-mono font-medium">{order.id}</span>
+            {/* هدر کارت - اطلاعات کلی */}
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+                
+                <div className="flex items-center gap-2">
+                  <Package size={16} className="text-[#d4af37]" />
+                  <span>کد سفارش:</span>
+                  <span className="font-mono font-bold text-gray-900">{order.id}</span>
                 </div>
-                <div>
-                  <span className="text-gray-500 block mb-1">تاریخ ثبت</span>
-                  <span className="font-medium">{order.date}</span>
+
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} className="text-[#d4af37]" />
+                  <span>{order.date}</span>
                 </div>
-                <div className="hidden sm:block">
-                  <span className="text-gray-500 block mb-1">مبلغ کل</span>
-                  <span className="font-medium">{order.totalPrice.toLocaleString()} تومان</span>
-                </div>
+
               </div>
+
+              {/* وضعیت سفارش */}
+              <StatusBadge status={order.status} text={order.statusText} />
+            </div>
+
+            {/* بدنه کارت - مبلغ و دکمه */}
+            <div className="p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
               
-              <StatusBadge status={order.status} />
-            </div>
-
-            {/* لیست آیتم‌های داخل سفارش */}
-            <div className="flex items-center justify-between">
-              <div className="flex -space-x-3 space-x-reverse">
-                {order.items.map((item, index) => (
-                  <div 
-                    key={item.id} 
-                    className="relative w-14 h-14 rounded-full border-2 border-white dark:border-zinc-900 overflow-hidden bg-gray-100"
-                    title={item.title}
-                  >
-                   <OrderImage src={item.image} alt={item.title} />
-                  </div>
-                ))}
-                {order.items.length > 4 && (
-                    <div className="relative w-14 h-14 rounded-full border-2 border-white dark:border-zinc-900 overflow-hidden bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                        +2
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                {/* تصاویر دمو محصولات */}
+                <div className="flex -space-x-3 space-x-reverse">
+                  {[...Array(order.itemCount)].map((_, i) => (
+                    <div key={i} className="w-12 h-12 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[10px] text-gray-500 overflow-hidden">
+                       {/* اینجا جای عکس است */}
+                       <img src="/placeholder.png" alt="" className="w-full h-full object-cover opacity-50" />
                     </div>
-                )}
+                  ))}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {order.itemCount} محصول
+                </div>
               </div>
 
-              <Link 
-                href={`/profile/orders/${order.id}`} 
-                className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1"
-              >
-                مشاهده فاکتور
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-              </Link>
-            </div>
-            
-            {/* نمایش قیمت در موبایل که بالا مخفی شده بود */}
-            <div className="mt-4 pt-4 border-t border-gray-50 dark:border-zinc-800 sm:hidden flex justify-between items-center">
-                <span className="text-sm text-gray-500">مبلغ کل:</span>
-                <span className="font-bold">{order.totalPrice.toLocaleString()} تومان</span>
-            </div>
+              <div className="flex items-center justify-between w-full sm:w-auto gap-6">
+                <div className="text-left">
+                  <p className="text-xs text-gray-500 mb-1">مبلغ کل پرداخت</p>
+                  <p className="text-lg font-bold text-[#0f393b]">{order.total} <span className="text-xs font-normal">تومان</span></p>
+                </div>
 
+                <Link
+                  href={`/profile/orders/${order.id}`}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#0f393b] text-[#0f393b] hover:bg-[#0f393b] hover:text-white transition-colors text-sm font-medium"
+                >
+                  مشاهده فاکتور
+                  <ChevronLeft size={16} />
+                </Link>
+              </div>
+
+            </div>
           </div>
         ))}
       </div>
     </div>
+  );
+}
+
+// کامپوننت وضعیت (Badge)
+function StatusBadge({ status, text }: { status: string; text: string }) {
+  const styles: Record<string, string> = {
+    processing: "bg-amber-50 text-amber-700 border-amber-200",
+    delivered: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    cancelled: "bg-red-50 text-red-700 border-red-200",
+  };
+
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || styles.processing} flex items-center gap-1.5`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${status === 'processing' ? 'bg-amber-500 animate-pulse' : status === 'delivered' ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+      {text}
+    </span>
   );
 }
